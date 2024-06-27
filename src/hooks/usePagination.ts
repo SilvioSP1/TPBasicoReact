@@ -11,6 +11,7 @@ interface Character {
 }
 
 const useRickAndMortyApi = (count: number) => {
+  const [allCharacters, setAllCharacters] = useState<Character[]>([]);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -22,11 +23,13 @@ const useRickAndMortyApi = (count: number) => {
       const response = await axios.get(`https://rickandmortyapi.com/api/character`, {
         params: { page }
       });
+      setAllCharacters([...allCharacters, ...response.data.results]);
       setCharacters(prevCharacters => [
         ...prevCharacters,
         ...response.data.results.slice(0, count - prevCharacters.length)
       ]);
       setLoading(false);
+      return response;
     } catch (error) {
       setError('Error fetching characters');
       setLoading(false);
@@ -34,15 +37,18 @@ const useRickAndMortyApi = (count: number) => {
   };
 
   useEffect(() => {
-    setCharacters([]); // Reset characters when count changes
-    fetchCharacters(1); // Fetch the first page when count changes
-  }, [count]);
+    fetchCharacters(1);
+  }, [page]);
 
   useEffect(() => {
+    setCharacters(allCharacters.slice(0, count));
+  }, [count, allCharacters]);
+
+  /*useEffect(() => {
     if (characters.length < count) {
       fetchCharacters(page);
     }
-  }, [page]);
+  }, [page]);*/
 
   return { characters, loading, error, setPage };
 };

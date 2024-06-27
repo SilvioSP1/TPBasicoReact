@@ -40,11 +40,14 @@ const CharacterList: React.FC = () => {
       </div>
       {error && <div className="text-red-500">{error}</div>}
       <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-1 sm:grid-cols-1">
-        {characters.map(character => (
-          <CharacterCard key={character.id} character={character} />
-        ))}
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          characters.map(character => (
+            <CharacterCard key={character.id} character={character} />
+          ))
+        )}
       </div>
-      {loading && <div>Loading...</div>}
     </div>
   );
 };
