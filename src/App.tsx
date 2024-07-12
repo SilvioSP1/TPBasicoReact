@@ -6,6 +6,7 @@ import CharacterList from './components/CharacterList';
 import CharacterDetail from './components/CharacterDetail';
 import Layaout from "./pages/Layaout";
 import Loader from './components/Loader';
+import FormCharacter from './components/FormCharacter';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,11 @@ const router = createBrowserRouter([
       {
         path: "/character/:id",
         element: <CharacterDetail />,
+        loader: Loader,
+      },
+      {
+        path: "/newCharacter",
+        element: <FormCharacter />,
         loader: Loader,
       }
     ],
