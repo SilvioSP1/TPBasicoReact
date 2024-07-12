@@ -5,6 +5,7 @@ const FormCharacter: React.FC = () => {
   const [species, setSpecies] = useState('');
   const [status, setStatus] = useState('');
   const [pdfBase64, setPdfBase64] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -19,6 +20,29 @@ const FormCharacter: React.FC = () => {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    switch (name) {
+      case 'name':
+        setName(value)
+        value.length == 0 ? setErrors((prevErrors) => ({ ...prevErrors, name: 'Name is required' })) :
+        setErrors((prevErrors) => ({ ...prevErrors, name: '' }))
+        break;
+      case 'species':
+        setSpecies(value);
+        value.length == 0 ? setErrors((prevErrors) => ({ ...prevErrors, species: 'Species is required' })) :
+        setErrors((prevErrors) => ({ ...prevErrors, species: '' }))
+        break;
+      case 'status':
+        setStatus(value);
+        value.length == 0 ? setErrors((prevErrors) => ({ ...prevErrors, status: 'Status is required' })) :
+        setErrors((prevErrors) => ({ ...prevErrors, status: '' }))
+        break;
+      default:
+        break;
+    }
+  };
+
   const clearFileInput = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -27,6 +51,11 @@ const FormCharacter: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     const formData = new FormData();
     formData.append('name', name);
     formData.append('species', species);
@@ -52,37 +81,65 @@ const FormCharacter: React.FC = () => {
     clearFileInput();
   };
 
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!name) {
+      newErrors.name = 'Name is required';
+    }
+    if (!species) {
+      newErrors.species = 'Species is required';
+    }
+    if (!status) {
+      newErrors.status = 'Status is required';
+    }
+    if (!pdfBase64) {
+      newErrors.pdf = 'PDF is required';
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+
   return (
     <div className='flex items-center justify-center p-4'>
       <div className='max-w-lg overflow-hidden shadow-xl p-4 bg-secondary rounded-xl border-2 border-primary'>
         <h1 className="text-3xl text-white font-bold mb-4">Add New Character</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-white">Name:</label>
             <input
               type="text"
+              name="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
             />
+            {errors.name && <p className="text-red-500">{errors.name}</p>}
           </div>
           <div>
             <label className="block text-white">Species:</label>
             <input
               type="text"
+              name="species"
               value={species}
-              onChange={(e) => setSpecies(e.target.value)}
+              onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
             />
+            {errors.species && <p className="text-red-500">{errors.species}</p>}
           </div>
           <div>
             <label className="block text-white">Status:</label>
             <input
               type="text"
+              name="status"
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
             />
+            {errors.status && <p className="text-red-500">{errors.status}</p>}
           </div>
           <div>
             <label className="block text-white">Upload PDF:</label>
@@ -93,6 +150,7 @@ const FormCharacter: React.FC = () => {
               ref={fileInputRef}
               className="w-full p-2 border border-gray-300 rounded bg-white"
             />
+            {errors.pdf && <p className="text-red-500">{errors.pdf}</p>}
           </div>
           <button
             type="submit"
